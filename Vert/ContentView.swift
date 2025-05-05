@@ -3,10 +3,13 @@ import SwiftUI
 struct ContentView: View {
     var body: some View {
         VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+            List(systemData.categories) { category in
+                Text(category.name)
+            }
+            Text("^ Categories   Units v")
+            List(systemData.units) { unit in
+                Text(unit.name)
+            }
         }
         .padding()
     }

@@ -1,0 +1,56 @@
+{
+  "categories": [
+    {
+      "id": 1,
+      "name": "distance"
+    },
+    {
+      "id": 2,
+      "name": "time"
+    },
+    {
+      "id": 3,
+      "name": "speed"
+    }
+  ],
+  "units": [
+    {
+      "id": 1,
+      "categoryId": 1,
+      "name": "metre",
+      "symbol": "m",
+      "useMetricPrefixes": true,
+      "numerator": [],
+      "denominator": []
+    },
+    {
+      "id": 2,
+      "categoryId": 1,
+      "name": "foot",
+      "symbol": "'",
+      "useMetricPrefixes": false,
+      "factor": 0.3048,
+      "numerator": [1],
+      "denominator": []
+    },
+    {
+      "id": 3,
+      "categoryId": 2,
+      "name": "second",
+      "symbol": "s",
+      "useMetricPrefixes": false,
+      "numerator": [],
+      "denominator": []
+    },
+    {
+      "id": 4,
+      "categoryId": 3,
+      "name": "metres per second",
+      "symbol": "m/s",
+      "useMetricPrefixes": true,
+      "factor": 1,
+      "numerator": [1],
+      "denominator": [3]
+    }
+  ]
+}
