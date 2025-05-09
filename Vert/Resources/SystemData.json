@@ -1,19 +1,19 @@
 [
     {
-        "id": 1,
-        "name": "distance",
+        "id": "39f1df55-e8ff-4634-b992-7eaf6663dee2",
+        "name": "Distance",
         "units": [
             {
-                "id": 1,
-                "name": "metre",
+                "id": "572bbaf7-e0bc-4202-ab55-824ea236e857",
+                "name": "Metre",
                 "symbol": "m",
                 "useMetricPrefixes": true,
                 "numerator": [],
                 "denominator": []
             },
             {
-                "id": 2,
-                "name": "foot",
+                "id": "6081eddf-f44f-4d0f-9275-57ea96f3fb24",
+                "name": "Foot",
                 "symbol": "'",
                 "useMetricPrefixes": false,
                 "factor": 0.3048,
@@ -25,12 +25,12 @@
         ]
     },
     {
-        "id": 2,
-        "name": "time",
+        "id": "23966eac-89a5-4a5d-bf3c-5cd43fef76d9",
+        "name": "Time",
         "units": [
             {
-                "id": 3,
-                "name": "second",
+                "id": "ad8ff707-94f1-4797-af32-16959ed1490e",
+                "name": "Second",
                 "symbol": "s",
                 "useMetricPrefixes": false,
                 "numerator": [],
@@ -39,12 +39,12 @@
         ]
     },
     {
-        "id": 3,
-        "name": "speed",
+        "id": "0e5c01ec-7f14-4bf5-be12-082f5387c456",
+        "name": "Speed",
         "units": [
             {
-                "id": 4,
-                "name": "metres per second",
+                "id": "1570b692-119c-49e4-b04e-3970a210651e",
+                "name": "Metres per Second",
                 "symbol": "m/s",
                 "useMetricPrefixes": true,
                 "factor": 1,

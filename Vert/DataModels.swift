@@ -1,19 +1,43 @@
 import Foundation
 
-struct Category: Identifiable, Codable {
-    let id: Int
-    let name: String
-    let units: [Unit]
+struct Category: Identifiable, Codable, Hashable {
+    let id: UUID
+    var name: String
+    var units: [Unit]
+    
+    init() {
+        id = UUID()
+        name = "New Category"
+        units = []
+    }
+    
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
 }
 
-struct Unit: Identifiable, Codable {
-    let id: Int
-    let name: String
-    let symbol: String
-    let useMetricPrefixes: Bool
-    let factor: Decimal?
-    let numerator: [Int]
-    let denominator: [Int]
+struct Unit: Identifiable, Codable, Hashable {
+    let id: UUID
+    var name: String
+    var symbol: String
+    var useMetricPrefixes: Bool
+    var factor: Decimal?
+    var numerator: [Int]
+    var denominator: [Int]
+    
+    init(category: Category) {
+        id = UUID()
+        name = "New Unit"
+        symbol = "symbol"
+        useMetricPrefixes = false
+        factor = nil
+        numerator = []
+        denominator = []
+    }
+    
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
 }
 
 var categories: [Category] = load("SystemData.json")
