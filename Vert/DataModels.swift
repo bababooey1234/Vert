@@ -1,18 +1,13 @@
 import Foundation
 
-struct SystemData: Codable {
-    let categories: [Category]
-    let units: [Unit]
-}
-
 struct Category: Identifiable, Codable {
     let id: Int
     let name: String
+    let units: [Unit]
 }
 
 struct Unit: Identifiable, Codable {
     let id: Int
-    let categoryId: Int
     let name: String
     let symbol: String
     let useMetricPrefixes: Bool
@@ -21,7 +16,7 @@ struct Unit: Identifiable, Codable {
     let denominator: [Int]
 }
 
-var systemData: SystemData = load("SystemData.json")
+var categories: [Category] = load("SystemData.json")
 
 func load<T: Decodable>(_ filename: String) -> T {
     let data: Data
