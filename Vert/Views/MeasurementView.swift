@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct ContentView: View {
+struct MeasurementView: View {
     var body: some View {
         VStack {
             List(categories) { category in
@@ -16,5 +16,5 @@ struct ContentView: View {
 }
 
 #Preview {
-    ContentView()
+    MeasurementView()
 }
