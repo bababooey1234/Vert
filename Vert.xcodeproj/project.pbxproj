@@ -6,7 +6,12 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		21432C802DD088F3007E7B9B /* SwiftData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 21432C7E2DD088EF007E7B9B /* SwiftData.framework */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
+		21432C7E2DD088EF007E7B9B /* SwiftData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftData.framework; path = System/Library/Frameworks/SwiftData.framework; sourceTree = SDKROOT; };
 		215BABC02DC8AC7500DB66C2 /* Vert.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Vert.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -23,16 +28,26 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				21432C802DD088F3007E7B9B /* SwiftData.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		21432C7D2DD088EF007E7B9B /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				21432C7E2DD088EF007E7B9B /* SwiftData.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		215BABB72DC8AC7500DB66C2 = {
 			isa = PBXGroup;
 			children = (
 				215BABC22DC8AC7500DB66C2 /* Vert */,
+				21432C7D2DD088EF007E7B9B /* Frameworks */,
 				215BABC12DC8AC7500DB66C2 /* Products */,
 			);
 			sourceTree = "<group>";

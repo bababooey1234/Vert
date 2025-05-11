@@ -1,4 +1,5 @@
 import SwiftUI
+import SwiftData
 
 struct UnitDetailView: View {
     var unit: Unit
@@ -8,5 +9,5 @@ struct UnitDetailView: View {
 }
 
 #Preview {
-    UnitDetailView(unit: categories[0].units[0])
+    UnitDetailView(unit: Unit(Category()))
 }

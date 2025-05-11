@@ -1,6 +1,8 @@
 import SwiftUI
+import SwiftData
 
 struct MeasurementView: View {
+    @Query var categories: [Category]
     var body: some View {
         VStack {
             List(categories) { category in

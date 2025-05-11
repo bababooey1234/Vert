@@ -7,11 +7,10 @@ struct CategoryDetailView: View {
     var body: some View {
         List {
             ForEach(category.units) { unit in
-                NavigationLink {
-                    UnitDetailView(unit: unit)
-                } label: {
+                NavigationLink(value: unit, label: {
                     Text("\(unit.name) (\(unit.symbol))")
-                }
+                })
+                .deleteDisabled(unit.isSystemDefined)
             }
             .onDelete { deleted in
                 category.units.remove(atOffsets: deleted)
@@ -33,13 +32,9 @@ struct CategoryDetailView: View {
     }
     
     private func addNewUnit() {
-        let unit = Unit(category: category)
+        let unit = Unit(category)
         category.units.append(unit)
-        print(path)
-        print(path.count)
         path.append(unit)
-        print(path)
-        print(path.count)
     }
 }
 
@@ -48,7 +43,7 @@ struct CategoryDetailView: View {
         @State var path = NavigationPath()
         var body: some View {
             NavigationStack(path: $path) {
-                CategoryDetailView(category: categories[0], path: $path)
+                CategoryDetailView(category: Category(name: "Preview Category"), path: $path)
             }
         }
     }
