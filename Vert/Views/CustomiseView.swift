@@ -8,18 +8,17 @@ struct CustomiseView: View {
     var body: some View {
         NavigationStack(path: $model.path) {
             List {
-                ForEach(categories) { category in
-                    NavigationLink(value: category, label: {
-                        Text(category.name)
-                    })
-                    .deleteDisabled(category.isSystemDefined)
-                }
-                .onDelete { deleted in
-                    for i in deleted {
-                        modelContext.delete(categories[i])
+                Section {
+                    ForEach(categories.filter { !$0.isSystemDefined }) { category in
+                        NavigationLink(value: category, label: {
+                            Text(category.name)
+                        })
                     }
-                }
-                if (model.editMode == .inactive) {
+                    .onDelete { deleted in
+                        for i in deleted {
+                            modelContext.delete(categories.filter { !$0.isSystemDefined }[i])
+                        }
+                    }
                     Button {
                         let category = Category()
                         modelContext.insert(category)
@@ -27,6 +26,17 @@ struct CustomiseView: View {
                     } label: {
                         Text("Add Category...")
                     }
+                } header: {
+                    Text("Your Categories")
+                }
+                Section {
+                    ForEach(categories.filter(\.isSystemDefined)) { category in
+                        NavigationLink(value: category, label: {
+                            Text(category.name)
+                        })
+                    }
+                } header: {
+                    Text("System-Defined Categories")
                 }
             }
             .navigationBarTitle("Categories")

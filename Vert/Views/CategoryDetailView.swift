@@ -6,19 +6,36 @@ struct CategoryDetailView: View {
     @Binding var path: NavigationPath
     var body: some View {
         List {
-            ForEach(category.units) { unit in
-                NavigationLink(value: unit, label: {
-                    Text("\(unit.name) (\(unit.symbol))")
-                })
-                .deleteDisabled(unit.isSystemDefined)
-            }
-            .onDelete { deleted in
-                category.units.remove(atOffsets: deleted)
-            }
-            
-            if (editMode == .inactive) {
-                Button(action: addNewUnit) {
+            Section {
+                ForEach(category.units.filter({ !$0.isSystemDefined })) { unit in
+                    NavigationLink(value: unit, label: {
+                        Text("\(unit.name) (\(unit.symbol))")
+                    })
+                }
+                .onDelete { deleted in
+                    //TODO: Fix
+                    category.units.remove(atOffsets: deleted)
+                }
+                
+                Button {
+                    let unit = Unit(category)
+                    category.units.append(unit)
+                    path.append(unit)
+                } label: {
                     Text("Add Unit...")
+                }
+            } header: {
+                Text("Your Units")
+            }
+            if category.isSystemDefined {
+                Section {
+                    ForEach(category.units.filter(\.isSystemDefined)) { unit in
+                        NavigationLink(value: unit, label: {
+                            Text("\(unit.name) (\(unit.symbol))")
+                        })
+                    }
+                } header: {
+                    Text("System-Defined Units")
                 }
             }
         }
@@ -30,23 +47,11 @@ struct CategoryDetailView: View {
         }
         .environment(\.editMode, $editMode)
     }
-    
-    private func addNewUnit() {
-        let unit = Unit(category)
-        category.units.append(unit)
-        path.append(unit)
-    }
 }
 
 #Preview {
-    struct Preview: View {
-        @State var path = NavigationPath()
-        var body: some View {
-            NavigationStack(path: $path) {
-                CategoryDetailView(category: Category(name: "Preview Category"), path: $path)
-            }
-        }
-    }
-    
-    return Preview()
+    @Previewable @State var path = NavigationPath()
+    let category = Category(name: "Preview Category")
+    category.units.append(Unit(category: category, name: "System-Defined Unit", symbol: "s", useMetricPrefixes: false, factor: 1, numerator: [], denominator: []))
+    return CategoryDetailView(category: category, path: $path)
 }
