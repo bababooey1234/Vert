@@ -3,7 +3,7 @@ import SwiftData
 
 struct CustomiseView: View {
     @StateObject private var model = CustomiseViewModel()
-    @Query private var categories: [Category]
+    @Query(sort: \Category.name) private var categories: [Category]
     @Environment(\.modelContext) private var modelContext
     var body: some View {
         NavigationStack(path: $model.path) {
