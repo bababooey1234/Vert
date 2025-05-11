@@ -48,4 +48,5 @@ struct CustomiseView: View {
 
 #Preview {
     CustomiseView()
+        .modelContainer(previewContainer)
 }
