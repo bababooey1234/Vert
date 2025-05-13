@@ -142,7 +142,7 @@ struct MeasurementView: View {
                         }
                     } label: {
                         HStack {
-                            Text(selectedFormula?.name ?? "Select Formula")
+                            Text(selectedFormula?.name ?? "Select Formula (\(customFormulas.count) available)")
                                 .foregroundColor(.primary)
                             Spacer()
                             Image(systemName: "chevron.down")

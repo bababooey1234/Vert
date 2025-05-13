@@ -10,28 +10,30 @@ struct CustomFormulaView: View {
     var body: some View {
         NavigationStack {
             List {
-                ForEach(formulas) { formula in
-                    NavigationLink(destination: FormulaDetailView(formula: formula)) {
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text(formula.name)
-                                .fontWeight(.medium)
-                            
-                            HStack {
-                                Text(formula.symbol)
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
+                Section(header: Text("Formula Count: \(formulas.count)")) {
+                    ForEach(formulas) { formula in
+                        NavigationLink(destination: FormulaDetailView(formula: formula)) {
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(formula.name)
+                                    .fontWeight(.medium)
                                 
-                                Spacer()
-                                
-                                Text(formula.formula)
-                                    .font(.caption.monospaced())
-                                    .foregroundColor(.secondary)
+                                HStack {
+                                    Text(formula.symbol)
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+                                    
+                                    Spacer()
+                                    
+                                    Text(formula.formula)
+                                        .font(.caption.monospaced())
+                                        .foregroundColor(.secondary)
+                                }
                             }
+                            .padding(.vertical, 4)
                         }
-                        .padding(.vertical, 4)
                     }
+                    .onDelete(perform: deleteFormulas)
                 }
-                .onDelete(perform: deleteFormulas)
             }
             .navigationTitle("Custom Formulas")
             .toolbar {
@@ -44,6 +46,12 @@ struct CustomFormulaView: View {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     EditButton()
                 }
+                
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button(action: resetData) {
+                        Label("Reset", systemImage: "arrow.counterclockwise")
+                    }
+                }
             }
             .environment(\.editMode, $editMode)
             .sheet(isPresented: $showingNewFormulaSheet) {
@@ -55,6 +63,18 @@ struct CustomFormulaView: View {
     private func deleteFormulas(_ indexSet: IndexSet) {
         for index in indexSet {
             modelContext.delete(formulas[index])
+        }
+    }
+    
+    private func resetData() {
+        // Clear all current formulas
+        for formula in formulas {
+            modelContext.delete(formula)
+        }
+        
+        // Add seed data directly
+        Task { @MainActor in
+            directSeedData(context: modelContext)
         }
     }
 }
