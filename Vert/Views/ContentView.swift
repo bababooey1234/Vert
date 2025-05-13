@@ -11,7 +11,7 @@ struct ContentView: View {
     var body: some View {
         TabView(selection: $selectedTab) {
             Tab("Currency", systemImage: "dollarsign.square", value: .currency) {
-                CurrencyView()
+                CurrencyConverterView()
             }
             Tab("Measurement", systemImage: "ruler", value: .measurement) {
                 MeasurementView()
