@@ -2,13 +2,20 @@ import SwiftUI
 import SwiftData
 
 struct MeasurementView: View {
-    @Query var categories: [Category]
-    @State private var selectedCategory: Category?
+    @Query(sort: \Unit.name) var units: [Unit]
+    @Query(sort: \CustomFormula.name) var customFormulas: [CustomFormula]
     @State private var fromUnit: Unit?
     @State private var toUnit: Unit?
+    @State private var selectedFormula: CustomFormula?
     @State private var inputValue: String = ""
     @State private var result: String = ""
     @FocusState private var isInputFocused: Bool
+    @State private var conversionMode: ConversionMode = .units
+    
+    enum ConversionMode {
+        case units
+        case formula
+    }
     
     var body: some View {
         VStack(spacing: 20) {
@@ -22,7 +29,7 @@ struct MeasurementView: View {
                     .multilineTextAlignment(.trailing)
                     .frame(minWidth: 0, maxWidth: .infinity)
                 
-                if let fromUnit = fromUnit {
+                if conversionMode == .units, let fromUnit = fromUnit {
                     Text(fromUnit.symbol)
                         .fontWeight(.medium)
                         .foregroundColor(.secondary)
@@ -33,58 +40,21 @@ struct MeasurementView: View {
             .cornerRadius(8)
             .padding(.horizontal)
             
-            VStack(alignment: .leading) {
-                Text("Category")
-                    .fontWeight(.medium)
-                    .foregroundColor(.secondary)
-                    .padding(.horizontal)
-                
-                Menu {
-                    ForEach(categories, id: \.id) { category in
-                        Button(action: {
-                            selectedCategory = category
-                            if category.units.count > 0 {
-                                fromUnit = category.units.first
-                                if category.units.count > 1 {
-                                    toUnit = category.units[1]
-                                } else {
-                                    toUnit = category.units.first
-                                }
-                                updateResult()
-                            }
-                        }) {
-                            if selectedCategory?.id == category.id {
-                                Label(category.name, systemImage: "checkmark")
-                            } else {
-                                Text(category.name)
-                            }
-                        }
-                    }
-                } label: {
-                    HStack {
-                        Text(selectedCategory?.name ?? "Select Category")
-                            .foregroundColor(.primary)
-                        Spacer()
-                        Image(systemName: "chevron.down")
-                            .foregroundColor(.secondary)
-                    }
-                    .padding()
-                    .background(Color(.systemGray6))
-                    .cornerRadius(8)
-                    .padding(.horizontal)
-                }
+            Picker("Conversion Mode", selection: $conversionMode) {
+                Text("Units").tag(ConversionMode.units)
+                Text("Formulas").tag(ConversionMode.formula)
+            }
+            .pickerStyle(.segmented)
+            .padding(.horizontal)
+            .onChange(of: conversionMode) { _, _ in
+                result = ""
             }
             
-            HStack(spacing: 20) {
-                VStack(alignment: .leading) {
-                    Text("From:")
-                        .fontWeight(.medium)
-                        .foregroundColor(.secondary)
-                        .padding(.horizontal)
-                    
-                    if let selectedCategory = selectedCategory {
+            if conversionMode == .units {
+                HStack(spacing: 20) {
+                    VStack(alignment: .leading) {
                         Menu {
-                            ForEach(selectedCategory.units, id: \.id) { unit in
+                            ForEach(units, id: \.id) { unit in
                                 Button(action: {
                                     fromUnit = unit
                                     updateResult()
@@ -98,7 +68,7 @@ struct MeasurementView: View {
                             }
                         } label: {
                             HStack {
-                                Text(fromUnit?.name ?? "Select")
+                                Text(fromUnit?.name ?? "Select Unit")
                                     .foregroundColor(.primary)
                                 Spacer()
                                 Image(systemName: "chevron.down")
@@ -108,25 +78,12 @@ struct MeasurementView: View {
                             .background(Color(.systemGray6))
                             .cornerRadius(8)
                         }
-                    } else {
-                        Text("Select a category first")
-                            .padding()
-                            .background(Color(.systemGray6))
-                            .cornerRadius(8)
-                            .foregroundColor(.secondary)
                     }
-                }
-                .frame(minWidth: 0, maxWidth: .infinity)
-                
-                VStack(alignment: .leading) {
-                    Text("To:")
-                        .fontWeight(.medium)
-                        .foregroundColor(.secondary)
-                        .padding(.horizontal)
+                    .frame(minWidth: 0, maxWidth: .infinity)
                     
-                    if let selectedCategory = selectedCategory {
+                    VStack(alignment: .leading) {
                         Menu {
-                            ForEach(selectedCategory.units, id: \.id) { unit in
+                            ForEach(units, id: \.id) { unit in
                                 Button(action: {
                                     toUnit = unit
                                     updateResult()
@@ -140,7 +97,7 @@ struct MeasurementView: View {
                             }
                         } label: {
                             HStack {
-                                Text(toUnit?.name ?? "Select")
+                                Text(toUnit?.name ?? "Select Unit")
                                     .foregroundColor(.primary)
                                 Spacer()
                                 Image(systemName: "chevron.down")
@@ -150,31 +107,61 @@ struct MeasurementView: View {
                             .background(Color(.systemGray6))
                             .cornerRadius(8)
                         }
-                    } else {
-                        Text("Select a category first")
-                            .padding()
-                            .background(Color(.systemGray6))
-                            .cornerRadius(8)
+                    }
+                    .frame(minWidth: 0, maxWidth: .infinity)
+                }
+                .padding(.horizontal)
+                
+                Button(action: swapUnits) {
+                    HStack {
+                        Image(systemName: "arrow.up.arrow.down")
+                        Text("Swap Units")
+                    }
+                    .padding(.vertical, 8)
+                    .frame(maxWidth: .infinity)
+                    .background(Color.blue.opacity(0.1))
+                    .foregroundColor(.blue)
+                    .cornerRadius(8)
+                }
+                .padding(.horizontal)
+                .disabled(fromUnit == nil || toUnit == nil)
+            } else {
+                VStack(alignment: .leading) {
+                    Menu {
+                        ForEach(customFormulas, id: \.id) { formula in
+                            Button(action: {
+                                selectedFormula = formula
+                                updateResult()
+                            }) {
+                                if selectedFormula?.id == formula.id {
+                                    Label(formula.name, systemImage: "checkmark")
+                                } else {
+                                    Text(formula.name)
+                                }
+                            }
+                        }
+                    } label: {
+                        HStack {
+                            Text(selectedFormula?.name ?? "Select Formula")
+                                .foregroundColor(.primary)
+                            Spacer()
+                            Image(systemName: "chevron.down")
+                                .foregroundColor(.secondary)
+                        }
+                        .padding()
+                        .background(Color(.systemGray6))
+                        .cornerRadius(8)
+                        .padding(.horizontal)
+                    }
+                    
+                    if let formula = selectedFormula?.formula {
+                        Text("Formula: \(formula)")
+                            .font(.caption)
                             .foregroundColor(.secondary)
+                            .padding(.horizontal)
                     }
                 }
-                .frame(minWidth: 0, maxWidth: .infinity)
             }
-            .padding(.horizontal)
-            
-            Button(action: swapUnits) {
-                HStack {
-                    Image(systemName: "arrow.up.arrow.down")
-                    Text("Swap Units")
-                }
-                .padding(.vertical, 8)
-                .frame(maxWidth: .infinity)
-                .background(Color.blue.opacity(0.1))
-                .foregroundColor(.blue)
-                .cornerRadius(8)
-            }
-            .padding(.horizontal)
-            .disabled(fromUnit == nil || toUnit == nil)
             
             if !result.isEmpty {
                 VStack(alignment: .leading, spacing: 4) {
@@ -199,14 +186,17 @@ struct MeasurementView: View {
         .padding(.top)
         .navigationTitle("Converter")
         .onAppear {
-            if let firstCategory = categories.first {
-                selectedCategory = firstCategory
-                fromUnit = firstCategory.units.first
-                if firstCategory.units.count > 1 {
-                    toUnit = firstCategory.units[1]
+            if let firstUnit = units.first {
+                fromUnit = firstUnit
+                if units.count > 1 {
+                    toUnit = units[1]
                 } else {
-                    toUnit = firstCategory.units.first
+                    toUnit = units.first
                 }
+            }
+            
+            if let firstFormula = customFormulas.first {
+                selectedFormula = firstFormula
             }
         }
         .toolbar {
@@ -226,6 +216,15 @@ struct MeasurementView: View {
     }
     
     private func updateResult() {
+        switch conversionMode {
+        case .units:
+            updateUnitResult()
+        case .formula:
+            updateFormulaResult()
+        }
+    }
+    
+    private func updateUnitResult() {
         guard let fromUnit = fromUnit,
               let toUnit = toUnit,
               !inputValue.isEmpty else {
@@ -250,37 +249,55 @@ struct MeasurementView: View {
         }
     }
     
+    private func updateFormulaResult() {
+        guard let formula = selectedFormula,
+              !inputValue.isEmpty else {
+            result = ""
+            return
+        }
+        
+        guard let inputDecimal = Decimal(string: inputValue) else {
+            result = "Invalid number"
+            return
+        }
+        
+        do {
+            let convertedValue = try FormulaEvaluator.evaluate(formula: formula.formula, x: inputDecimal)
+            
+            let formatter = NumberFormatter()
+            formatter.maximumFractionDigits = 8
+            formatter.minimumFractionDigits = 0
+            formatter.numberStyle = .decimal
+            
+            if let formattedValue = formatter.string(from: convertedValue as NSDecimalNumber) {
+                result = formattedValue
+            }
+        } catch {
+            result = "Error: \(error.localizedDescription)"
+        }
+    }
+    
     private func convert(value: Decimal, from: Unit, to: Unit) -> Decimal {
-        if from.category.name == "Temperature" {
+        if from.numerator.contains(4) && to.numerator.contains(4) {
             return convertTemperature(value: value, from: from, to: to)
         }
         
-        // Check if the "from" unit has a custom formula
         if let fromFormula = from.conversionFormula {
             do {
-                // Convert directly from the input to the target unit using formula
-                let baseValue = try FormulaEvaluator.evaluate(formula: fromFormula, x: value)
-                return baseValue / to.factor
+                return try FormulaEvaluator.evaluate(formula: fromFormula, x: value)
             } catch {
                 print("Error evaluating 'from' formula: \(error.localizedDescription)")
-                // Fall back to standard conversion
             }
         } 
-        // Check if the "to" unit has a custom formula
         else if let toFormula = to.conversionFormula {
             do {
-                // First convert to base unit
                 let baseValue = value * from.factor
-                // Then use formula to convert from base unit to target
-                let xValue = baseValue
-                return try FormulaEvaluator.evaluate(formula: toFormula, x: xValue)
+                return try FormulaEvaluator.evaluate(formula: toFormula, x: baseValue)
             } catch {
                 print("Error evaluating 'to' formula: \(error.localizedDescription)")
-                // Fall back to standard conversion
             }
         }
         
-        // Standard conversion using factors
         let valueInBaseUnit = value * from.factor
         let valueInTargetUnit = valueInBaseUnit / to.factor
         return valueInTargetUnit

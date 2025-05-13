@@ -1,11 +1,96 @@
 import SwiftUI
 import SwiftData
 
-struct CustomConversionCreatorView: View {
+struct CustomFormulaView: View {
+    @Query(sort: \CustomFormula.name) private var formulas: [CustomFormula]
+    @Environment(\.modelContext) private var modelContext
+    @State private var showingNewFormulaSheet = false
+    @State private var editMode: EditMode = .inactive
+    
+    var body: some View {
+        NavigationStack {
+            List {
+                ForEach(formulas) { formula in
+                    NavigationLink(destination: FormulaDetailView(formula: formula)) {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(formula.name)
+                                .fontWeight(.medium)
+                            
+                            HStack {
+                                Text(formula.symbol)
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                                
+                                Spacer()
+                                
+                                Text(formula.formula)
+                                    .font(.caption.monospaced())
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                        .padding(.vertical, 4)
+                    }
+                }
+                .onDelete(perform: deleteFormulas)
+            }
+            .navigationTitle("Custom Formulas")
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button(action: { showingNewFormulaSheet = true }) {
+                        Label("Add Formula", systemImage: "plus")
+                    }
+                }
+                
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    EditButton()
+                }
+            }
+            .environment(\.editMode, $editMode)
+            .sheet(isPresented: $showingNewFormulaSheet) {
+                FormulaCreatorView()
+            }
+        }
+    }
+    
+    private func deleteFormulas(_ indexSet: IndexSet) {
+        for index in indexSet {
+            modelContext.delete(formulas[index])
+        }
+    }
+}
+
+struct ExampleFormulaRow: View {
+    let name: String
+    let formula: String
+    
+    var body: some View {
+        VStack(alignment: .leading) {
+            Text(name)
+                .font(.caption)
+                .foregroundColor(.secondary)
+            
+            HStack {
+                Text(formula)
+                    .font(.caption.monospaced())
+                    .foregroundColor(.primary)
+                
+                Spacer()
+                
+                Button(action: {
+                    UIPasteboard.general.string = formula
+                }) {
+                    Image(systemName: "doc.on.doc")
+                        .font(.caption)
+                }
+            }
+        }
+        .padding(.vertical, 4)
+    }
+}
+
+struct FormulaCreatorView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
-    
-    var category: Category
     
     @State private var name: String = ""
     @State private var symbol: String = ""
@@ -51,11 +136,11 @@ struct CustomConversionCreatorView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section(header: Text("Unit Details")) {
-                    TextField("Name (e.g., Fahrenheit)", text: $name)
+                Section(header: Text("Formula Details")) {
+                    TextField("Name (e.g., Miles to Kilometers)", text: $name)
                         .autocapitalization(.words)
                     
-                    TextField("Symbol (e.g., °F)", text: $symbol)
+                    TextField("Symbol (e.g., mi → km)", text: $symbol)
                 }
                 
                 Section(header: Text("Formula Type")) {
@@ -65,7 +150,7 @@ struct CustomConversionCreatorView: View {
                         }
                     }
                     .pickerStyle(.menu)
-                    .onChange(of: selectedFormulaType) { _, newValue in
+                    .onChange(of: selectedFormulaType) { _, _ in
                         updateFormulaBasedOnType()
                     }
                     
@@ -93,8 +178,8 @@ struct CustomConversionCreatorView: View {
                 }
                 
                 Section(header: Text("Conversion Formula")) {
-                    TextField("Formula using 'x' (e.g., x * 9/5 + 32)", text: $formula)
-                        .onChange(of: formula) { _, newValue in
+                    TextField("Formula using 'x' (e.g., x * 1.60934)", text: $formula)
+                        .onChange(of: formula) { _, _ in
                             validateFormula()
                         }
                         .foregroundColor(formulaIsValid ? .primary : .red)
@@ -150,7 +235,7 @@ struct CustomConversionCreatorView: View {
                     }
                 }
             }
-            .navigationTitle("Create Custom Unit")
+            .navigationTitle("Create Custom Formula")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
@@ -161,7 +246,7 @@ struct CustomConversionCreatorView: View {
                 
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("Save") {
-                        saveUnit()
+                        saveFormula()
                     }
                     .disabled(name.isEmpty || symbol.isEmpty || !formulaIsValid)
                 }
@@ -239,55 +324,164 @@ struct CustomConversionCreatorView: View {
         }
     }
     
-    private func saveUnit() {
-        _ = CustomConversionManager.createCustomUnit(
-            in: category,
-            name: name,
-            symbol: symbol,
-            formula: formula,
-            context: modelContext
-        )
+    private func saveFormula() {
+        let customFormula = CustomFormula(name: name, symbol: symbol, formula: formula)
+        modelContext.insert(customFormula)
         dismiss()
     }
 }
 
-struct ExampleFormulaRow: View {
-    let name: String
-    let formula: String
+struct FormulaDetailView: View {
+    @Environment(\.modelContext) private var modelContext
+    @Environment(\.dismiss) private var dismiss
+    
+    var formula: CustomFormula
+    
+    @State private var name: String = ""
+    @State private var symbol: String = ""
+    @State private var formulaText: String = ""
+    @State private var testInput: String = "1"
+    @State private var previewResult: String = ""
+    @State private var formulaIsValid: Bool = true
+    @State private var errorMessage: String = ""
+    @State private var showingDeleteConfirmation = false
     
     var body: some View {
-        VStack(alignment: .leading) {
-            Text(name)
-                .font(.caption)
-                .foregroundColor(.secondary)
+        Form {
+            Section(header: Text("Formula Details")) {
+                TextField("Name", text: $name)
+                TextField("Symbol", text: $symbol)
+            }
             
-            HStack {
-                Text(formula)
-                    .font(.caption.monospaced())
-                    .foregroundColor(.primary)
+            Section(header: Text("Conversion Formula")) {
+                TextField("Formula using 'x'", text: $formulaText)
+                    .onChange(of: formulaText) { _, _ in
+                        validateFormula()
+                    }
+                    .foregroundColor(formulaIsValid ? .primary : .red)
                 
-                Spacer()
-                
-                Button(action: {
-                    UIPasteboard.general.string = formula
-                }) {
-                    Image(systemName: "doc.on.doc")
+                if !formulaIsValid {
+                    Text(errorMessage)
                         .font(.caption)
+                        .foregroundColor(.red)
+                }
+            }
+            
+            Section(header: Text("Test Your Formula")) {
+                HStack {
+                    Text("Input:")
+                    TextField("Test value", text: $testInput)
+                        .keyboardType(.decimalPad)
+                        .multilineTextAlignment(.trailing)
+                        .onChange(of: testInput) { _, _ in
+                            updatePreview()
+                        }
+                }
+                
+                if !previewResult.isEmpty {
+                    HStack {
+                        Text("Result:")
+                        Spacer()
+                        Text(previewResult)
+                            .fontWeight(.medium)
+                    }
+                }
+                
+                Button("Calculate Preview") {
+                    updatePreview()
+                }
+            }
+            
+            Section {
+                Button(role: .destructive) {
+                    showingDeleteConfirmation = true
+                } label: {
+                    Text("Delete Formula")
+                        .foregroundColor(.red)
                 }
             }
         }
-        .padding(.vertical, 4)
+        .navigationTitle("Edit Formula")
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button("Save") {
+                    saveChanges()
+                }
+                .disabled(!formulaIsValid)
+            }
+        }
+        .onAppear {
+            name = formula.name
+            symbol = formula.symbol
+            formulaText = formula.formula
+            updatePreview()
+        }
+        .alert("Delete Formula", isPresented: $showingDeleteConfirmation) {
+            Button("Cancel", role: .cancel) { }
+            Button("Delete", role: .destructive) {
+                deleteFormula()
+            }
+        } message: {
+            Text("Are you sure you want to delete this formula?")
+        }
+    }
+    
+    private func validateFormula() {
+        if formulaText.isEmpty {
+            formulaIsValid = false
+            errorMessage = "Formula cannot be empty"
+            return
+        }
+        
+        formulaIsValid = FormulaEvaluator.isValid(formula: formulaText)
+        if !formulaIsValid {
+            errorMessage = "Invalid formula"
+        } else {
+            updatePreview()
+        }
+    }
+    
+    private func updatePreview() {
+        guard formulaIsValid, !testInput.isEmpty,
+              let testValue = Decimal(string: testInput) else {
+            previewResult = ""
+            return
+        }
+        
+        do {
+            let result = try FormulaEvaluator.evaluate(formula: formulaText, x: testValue)
+            
+            // Format result
+            let formatter = NumberFormatter()
+            formatter.maximumFractionDigits = 6
+            formatter.minimumFractionDigits = 0
+            formatter.numberStyle = .decimal
+            
+            if let formattedResult = formatter.string(from: result as NSDecimalNumber) {
+                previewResult = formattedResult
+            } else {
+                previewResult = "\(result)"
+            }
+        } catch {
+            previewResult = "Error: \(error.localizedDescription)"
+            formulaIsValid = false
+            errorMessage = error.localizedDescription
+        }
+    }
+    
+    private func saveChanges() {
+        formula.name = name
+        formula.symbol = symbol
+        formula.formula = formulaText
+    }
+    
+    private func deleteFormula() {
+        modelContext.delete(formula)
+        dismiss()
     }
 }
 
 #Preview {
-    let config = ModelConfiguration(isStoredInMemoryOnly: true)
-    let container = try! ModelContainer(for: Category.self, Unit.self, configurations: config)
-    
-    // Create a sample category
-    let category = Category(name: "Test Category")
-    container.mainContext.insert(category)
-    
-    return CustomConversionCreatorView(category: category)
-        .modelContainer(container)
+    CustomFormulaView()
+        .modelContainer(previewContainer)
 } 

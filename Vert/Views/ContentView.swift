@@ -3,7 +3,7 @@ import SwiftUI
 enum Tabs {
     case currency
     case measurement
-    case customise
+    case formulas
 }
 
 struct ContentView: View {
@@ -16,8 +16,8 @@ struct ContentView: View {
             Tab("Measurement", systemImage: "ruler", value: .measurement) {
                 MeasurementView()
             }
-            Tab("Customise", systemImage: "plus", value: .customise) {
-                CustomiseView()
+            Tab("Formulas", systemImage: "function", value: .formulas) {
+                CustomFormulaView()
             }
         }
     }

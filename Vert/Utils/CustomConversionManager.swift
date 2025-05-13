@@ -3,52 +3,69 @@ import SwiftData
 
 class CustomConversionManager {
     
-    /// Creates a new custom unit with a formula-based conversion
+    /// Creates a new custom formula
     /// - Parameters:
-    ///   - category: The category to add the unit to
-    ///   - name: The name of the new unit
-    ///   - symbol: The symbol for the new unit
+    ///   - name: The name of the formula
+    ///   - symbol: The symbol for the formula
     ///   - formula: The conversion formula using 'x' as the variable
     ///   - context: The SwiftData model context
-    /// - Returns: The newly created unit
+    /// - Returns: The newly created custom formula
+    static func createCustomFormula(
+        name: String,
+        symbol: String,
+        formula: String,
+        context: ModelContext
+    ) -> CustomFormula {
+        // Create new formula
+        let customFormula = CustomFormula(name: name, symbol: symbol, formula: formula)
+        
+        // Add to model
+        context.insert(customFormula)
+        
+        return customFormula
+    }
+    
+    /// Creates a unit with a linear conversion
+    /// - Parameters:
+    ///   - name: The name of the unit
+    ///   - symbol: The symbol for the unit
+    ///   - formula: The conversion formula
+    ///   - context: The SwiftData model context
+    /// - Returns: The newly created unit with formula
     static func createCustomUnit(
-        in category: Category,
         name: String,
         symbol: String,
         formula: String,
         context: ModelContext
     ) -> Unit {
         // Create new unit
-        let unit = Unit(category)
+        let unit = Unit()
         unit.name = name
         unit.symbol = symbol
         unit.isSystemDefined = false
         unit.conversionFormula = formula
         
-        // Add to model and category
+        // Add to model
         context.insert(unit)
-        category.units.append(unit)
         
         return unit
     }
     
-    /// Creates a linear conversion unit
+    /// Creates a linear conversion formula
     /// - Parameters:
-    ///   - category: The category to add the unit to
-    ///   - name: The name of the new unit
-    ///   - symbol: The symbol for the new unit
+    ///   - name: The name of the formula
+    ///   - symbol: The symbol for the formula
     ///   - scale: The scale factor (will generate formula "x * scale")
     ///   - offset: Optional offset (will generate formula "x * scale + offset")
     ///   - context: The SwiftData model context
-    /// - Returns: The newly created unit
-    static func createLinearConversion(
-        in category: Category,
+    /// - Returns: The newly created formula
+    static func createLinearFormula(
         name: String,
         symbol: String,
         scale: Decimal,
         offset: Decimal? = nil,
         context: ModelContext
-    ) -> Unit {
+    ) -> CustomFormula {
         var formula = "x * \(scale)"
         
         if let offset = offset, offset != 0 {
@@ -59,52 +76,55 @@ class CustomConversionManager {
             }
         }
         
-        return createCustomUnit(in: category, name: name, symbol: symbol, formula: formula, context: context)
+        return createCustomFormula(name: name, symbol: symbol, formula: formula, context: context)
     }
     
-    /// Helper method for creating common temperature conversions
+    /// Helper method for creating common temperature formulas
     /// - Parameters:
-    ///   - category: The temperature category
-    ///   - type: The type of temperature unit to create
+    ///   - type: The type of temperature formula to create
     ///   - context: The SwiftData model context
-    /// - Returns: The newly created temperature unit
-    static func createTemperatureUnit(
-        in category: Category,
+    /// - Returns: The newly created temperature formula
+    static func createTemperatureFormula(
         type: TemperatureType,
         context: ModelContext
-    ) -> Unit {
+    ) -> CustomFormula {
         switch type {
-        case .celsius:
-            return createCustomUnit(
-                in: category,
-                name: "Celsius",
-                symbol: "°C",
-                formula: "x",
-                context: context
-            )
-        case .fahrenheit:
-            return createCustomUnit(
-                in: category,
-                name: "Fahrenheit",
-                symbol: "°F", 
+        case .celsiusToFahrenheit:
+            return createCustomFormula(
+                name: "Celsius to Fahrenheit",
+                symbol: "°C → °F",
                 formula: "x * 9/5 + 32",
                 context: context
             )
-        case .kelvin:
-            return createCustomUnit(
-                in: category,
-                name: "Kelvin",
-                symbol: "K",
+        case .fahrenheitToCelsius:
+            return createCustomFormula(
+                name: "Fahrenheit to Celsius",
+                symbol: "°F → °C", 
+                formula: "(x - 32) * 5/9",
+                context: context
+            )
+        case .celsiusToKelvin:
+            return createCustomFormula(
+                name: "Celsius to Kelvin",
+                symbol: "°C → K",
                 formula: "x + 273.15",
+                context: context
+            )
+        case .kelvinToCelsius:
+            return createCustomFormula(
+                name: "Kelvin to Celsius",
+                symbol: "K → °C",
+                formula: "x - 273.15",
                 context: context
             )
         }
     }
     
-    /// Enum representing common temperature unit types
+    /// Enum representing common temperature formula types
     enum TemperatureType {
-        case celsius
-        case fahrenheit
-        case kelvin
+        case celsiusToFahrenheit
+        case fahrenheitToCelsius
+        case celsiusToKelvin
+        case kelvinToCelsius
     }
 } 

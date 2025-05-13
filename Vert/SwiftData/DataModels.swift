@@ -1,29 +1,23 @@
 import Foundation
 import SwiftData
 
-@Model final class Category {
+@Model final class CustomFormula {
     var id: UUID
-    var isSystemDefined: Bool
     var name: String
-    @Relationship var units: [Unit]
+    var symbol: String
+    var formula: String
     
-    init(name: String) {
+    init(name: String, symbol: String, formula: String) {
         id = UUID()
-        isSystemDefined = true
-        units = []
         self.name = name
-    }
-    
-    convenience init() {
-        self.init(name: "New Category")
-        isSystemDefined = false
+        self.symbol = symbol
+        self.formula = formula
     }
 }
 
 @Model final class Unit {
     var id: UUID
     var isSystemDefined: Bool
-    var category: Category
     var name: String
     var symbol: String
     var useMetricPrefixes: Bool
@@ -32,10 +26,9 @@ import SwiftData
     var denominator: [Int]
     var conversionFormula: String?
     
-    init(category: Category, name: String, symbol: String, useMetricPrefixes: Bool, factor: Decimal, numerator: [Int], denominator: [Int]) {
+    init(name: String, symbol: String, useMetricPrefixes: Bool, factor: Decimal, numerator: [Int], denominator: [Int]) {
         id = UUID()
         isSystemDefined = true
-        self.category = category
         self.name = name
         self.symbol = symbol
         self.useMetricPrefixes = useMetricPrefixes
@@ -45,19 +38,8 @@ import SwiftData
         self.conversionFormula = nil
     }
     
-    convenience init(_ category: Category) {
-        let defaultNumerator: [Int]
-        let defaultDenominator: [Int]
-        
-        if let baseUnit = category.units.first(where: { $0.isSystemDefined }) {
-            defaultNumerator = baseUnit.numerator
-            defaultDenominator = baseUnit.denominator
-        } else {
-            defaultNumerator = []
-            defaultDenominator = []
-        }
-        
-        self.init(category: category, name: "New Unit", symbol: "unit", useMetricPrefixes: false, factor: 1, numerator: defaultNumerator, denominator: defaultDenominator)
+    convenience init() {
+        self.init(name: "New Unit", symbol: "unit", useMetricPrefixes: false, factor: 1, numerator: [], denominator: [])
         isSystemDefined = false
     }
 }
