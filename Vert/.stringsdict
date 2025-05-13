@@ -1,0 +1,34 @@
+<dict>
+   <key>Formula</key>
+   <dict>
+     <key>NSStringLocalizedFormatKey</key>
+     <string>%#@VARIABLE@</string>
+     <key>VARIABLE</key>
+     <dict>
+       <key>NSStringFormatSpecTypeKey</key>
+       <string>NSStringPluralRuleType</string>
+       <key>one</key>
+       <string>Formula</string>
+       <key>other</key>
+       <string>Formulas</string>
+     </dict>
+   </dict>
+   <key>%lld formulas</key>
+   <dict>
+     <key>NSStringLocalizedFormatKey</key>
+     <string>%#@count@</string>
+     <key>count</key>
+     <dict>
+       <key>NSStringFormatSpecTypeKey</key>
+       <string>NSStringPluralRuleType</string>
+       <key>NSStringFormatValueTypeKey</key>
+       <string>lld</string>
+       <key>zero</key>
+       <string>%lld formulas</string>
+       <key>one</key>
+       <string>%lld formula</string>
+       <key>other</key>
+       <string>%lld formulas</string>
+     </dict>
+   </dict>
+ </dict>
