@@ -30,6 +30,7 @@ import SwiftData
     var factor: Decimal
     var numerator: [Int]
     var denominator: [Int]
+    var conversionFormula: String?
     
     init(category: Category, name: String, symbol: String, useMetricPrefixes: Bool, factor: Decimal, numerator: [Int], denominator: [Int]) {
         id = UUID()
@@ -41,10 +42,22 @@ import SwiftData
         self.factor = factor
         self.numerator = numerator
         self.denominator = denominator
+        self.conversionFormula = nil
     }
     
     convenience init(_ category: Category) {
-        self.init(category: category, name: "New Unit", symbol: "symbol", useMetricPrefixes: false, factor: 1, numerator: [], denominator: [])
+        let defaultNumerator: [Int]
+        let defaultDenominator: [Int]
+        
+        if let baseUnit = category.units.first(where: { $0.isSystemDefined }) {
+            defaultNumerator = baseUnit.numerator
+            defaultDenominator = baseUnit.denominator
+        } else {
+            defaultNumerator = []
+            defaultDenominator = []
+        }
+        
+        self.init(category: category, name: "New Unit", symbol: "unit", useMetricPrefixes: false, factor: 1, numerator: defaultNumerator, denominator: defaultDenominator)
         isSystemDefined = false
     }
 }
