@@ -2,7 +2,7 @@
 //  CurrencyConverterView.swift
 //  Vert
 //
-//  Created by Michael Zervos on 13/5/2025.
+//  Created by Michael Zervos on 10/5/2025.
 //
 import SwiftUI
 
@@ -14,7 +14,7 @@ struct CurrencyConverterView: View {
 
     @State private var showFromPicker = false
     @State private var showToPicker = false
-
+//UI
     var body: some View {
         NavigationView {
             Form {
@@ -65,6 +65,7 @@ struct CurrencyConverterView: View {
             }
             .navigationTitle("Currency Converter")
             .onAppear {
+                //stored
                 viewModel.loadAllCurrencies()
             }
             .sheet(isPresented: $showFromPicker) {
@@ -93,6 +94,7 @@ struct CurrencyConverterView: View {
         isConverting = true
         CurrencyAPI.shared.fetchRates(baseCurrency: from) { result in
             DispatchQueue.main.async {
+                //actual conversion
                 isConverting = false
                 switch result {
                 case .success(let rates):

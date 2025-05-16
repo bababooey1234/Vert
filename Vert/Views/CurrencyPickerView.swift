@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-
+//UI for different currency options
 struct CurrencyPickerView: View {
     @Environment(\.dismiss) var dismiss
     @Binding var selectedCurrency: CurrencyInfo?
@@ -49,6 +49,7 @@ struct CurrencyPickerView: View {
                     }
                 }
             }
+            //added search
             .searchable(text: $searchText)
             .navigationTitle("Select Currency")
         }

@@ -9,7 +9,7 @@ import Foundation
 struct CurrencyMetadataResponse: Codable {
     let data: [String: CurrencyInfo]
 }
-
+//Make Obj
 struct CurrencyInfo: Codable, Hashable {
     let symbol: String
     let name: String
@@ -23,7 +23,7 @@ struct CurrencyInfo: Codable, Hashable {
 }
 
 
-
+//get key securely
 class CurrencyAPI {
     static let shared = CurrencyAPI()
 
@@ -38,7 +38,7 @@ class CurrencyAPI {
             completion(.success(allCurrenciesCache))
             return
         }
-
+//get
         guard let url = URL(string: "https://api.currencyapi.com/v3/currencies?apikey=\(apiKey)") else {
             completion(.failure(NSError(domain: "Invalid URL", code: -1)))
             return
@@ -72,7 +72,7 @@ class CurrencyAPI {
     struct CurrencyValue: Codable {
         let value: Double
     }
-
+//rates
     func fetchRates(baseCurrency: String, completion: @escaping (Result<[String: Double], Error>) -> Void) {
         guard let url = URL(string: "https://api.currencyapi.com/v3/latest?apikey=\(apiKey)&base_currency=\(baseCurrency)") else {
             completion(.failure(NSError(domain: "Invalid URL", code: -1)))

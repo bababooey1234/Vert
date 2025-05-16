@@ -2,7 +2,7 @@
 //  Untitled.swift
 //  Vert
 //
-//  Created by Michael Zervos on 13/5/2025.
+//  Created by Michael Zervos on 12/5/2025.
 //
 
 import Foundation
@@ -15,6 +15,7 @@ class CurrencyViewModel: ObservableObject {
     @Published var toCurrency: CurrencyInfo?
 
     func loadAllCurrencies() {
+        //use so currency loads 1 and doesnt overuse key
         CurrencyAPI.shared.fetchAllCurrencies { result in
             DispatchQueue.main.async {
                 switch result {
