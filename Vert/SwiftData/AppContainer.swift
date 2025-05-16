@@ -295,39 +295,3 @@ func clearAllData(context: ModelContext) {
         print("Error clearing data: \(error)")
     }
 }
-
-@MainActor
-func directSeedData(context: ModelContext) {
-    // Add basic formulas directly to the context
-    context.insert(CustomFormula(name: "Fahrenheit to Celsius", symbol: "°F → °C", formula: "(x - 32) * 5/9"))
-    context.insert(CustomFormula(name: "Celsius to Fahrenheit", symbol: "°C → °F", formula: "x * 9/5 + 32"))
-    context.insert(CustomFormula(name: "Miles to Kilometers", symbol: "mi → km", formula: "x * 1.60934"))
-    context.insert(CustomFormula(name: "Kilometers to Miles", symbol: "km → mi", formula: "x * 0.621371"))
-    context.insert(CustomFormula(name: "Pounds to Kilograms", symbol: "lb → kg", formula: "x * 0.453592"))
-    context.insert(CustomFormula(name: "Kilograms to Pounds", symbol: "kg → lb", formula: "x * 2.20462"))
-    
-    // Length conversions
-    context.insert(CustomFormula(name: "Inches to Centimeters", symbol: "in → cm", formula: "x * 2.54"))
-    context.insert(CustomFormula(name: "Centimeters to Inches", symbol: "cm → in", formula: "x * 0.393701"))
-    context.insert(CustomFormula(name: "Feet to Meters", symbol: "ft → m", formula: "x * 0.3048"))
-    context.insert(CustomFormula(name: "Meters to Feet", symbol: "m → ft", formula: "x * 3.28084"))
-    
-    // Temperature conversions
-    context.insert(CustomFormula(name: "Celsius to Kelvin", symbol: "°C → K", formula: "x + 273.15"))
-    context.insert(CustomFormula(name: "Kelvin to Celsius", symbol: "K → °C", formula: "x - 273.15"))
-    
-    // Math functions
-    context.insert(CustomFormula(name: "Square Root", symbol: "√x", formula: "sqrt(x)"))
-    context.insert(CustomFormula(name: "Square", symbol: "x²", formula: "x * x"))
-    context.insert(CustomFormula(name: "Reciprocal", symbol: "1/x", formula: "1 / x"))
-}
-
-extension ModelContext {
-    func delete<T: PersistentModel>(model: T.Type) throws {
-        let descriptor = FetchDescriptor<T>()
-        let items = try fetch(descriptor)
-        for item in items {
-            delete(item)
-        }
-    }
-}

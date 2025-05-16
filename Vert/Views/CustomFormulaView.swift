@@ -46,12 +46,6 @@ struct CustomFormulaView: View {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     EditButton()
                 }
-                
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button(action: resetData) {
-                        Label("Reset", systemImage: "arrow.counterclockwise")
-                    }
-                }
             }
             .environment(\.editMode, $editMode)
             .sheet(isPresented: $showingNewFormulaSheet) {
@@ -63,18 +57,6 @@ struct CustomFormulaView: View {
     private func deleteFormulas(_ indexSet: IndexSet) {
         for index in indexSet {
             modelContext.delete(formulas[index])
-        }
-    }
-    
-    private func resetData() {
-        // Clear all current formulas
-        for formula in formulas {
-            modelContext.delete(formula)
-        }
-        
-        // Add seed data directly
-        Task { @MainActor in
-            directSeedData(context: modelContext)
         }
     }
 }

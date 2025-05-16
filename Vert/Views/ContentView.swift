@@ -7,7 +7,7 @@ enum Tabs {
 }
 
 struct ContentView: View {
-    @State private var selectedTab = Tabs.formulas
+    @State private var selectedTab = Tabs.measurement
     var body: some View {
         TabView(selection: $selectedTab) {
             Tab("Currency", systemImage: "dollarsign.square", value: .currency) {
